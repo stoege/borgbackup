@@ -1,0 +1,10 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- hosts: borg-rsync-hosts
+
+  become: true
+  become_method: doas
+
+  roles:
+  - borg_rsync

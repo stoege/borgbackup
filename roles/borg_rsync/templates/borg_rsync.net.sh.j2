@@ -1,0 +1,34 @@
+#!/bin/sh
+
+{{ myansible }}
+
+_host=$(hostname)
+_date=$(date +"%Y%m%d-%H%M")
+_app="{{ borg_backup_dir }}"
+
+export BORG_RSH='ssh -i /root/.ssh/id_ed25519_rsync_net'
+export BORG_PASSPHRASE='{{ vault_borg_passphrase | replace('\n', '') }}'
+export BORG_REMOTE_PATH=borg1
+export repo="{{ rsync_user }}@{{ rsync_host }}:$_app"
+
+#borg init --remote-path=borg1 $repo
+
+/usr/local/bin/borg create --compression lz4 -v --progress --stats --exclude-caches $repo::$_host-$_date \
+	/ \
+	--exclude "/bsd" \
+	--exclude "/bsd.booted" \
+{% if borg_exclude is defined %}
+{% for item in borg_exclude %}
+	--exclude "{{ item }}" \
+{% endfor %}
+{% endif %}
+	--exclude "/tmp"
+
+/usr/local/bin/borg prune -v --list $repo --prefix $_host \
+	--keep-hourly=2 \
+	--keep-daily=3 \
+	--keep-weekly=4 \
+	--keep-monthly=3 \
+	--keep-yearly=2
+
+exit 0

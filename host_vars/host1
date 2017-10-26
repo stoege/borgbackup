@@ -1,0 +1,4 @@
+ansible_host:	IP_OF_HOST_1
+
+borg_exclude:
+  - '/data1'

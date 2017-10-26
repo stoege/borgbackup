@@ -1,0 +1,6 @@
+ansible_host:	IP_OF_HOST_3
+
+borg_exclude:
+  - '/data1'
+  - '/data2'
+  - '/data3'

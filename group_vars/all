@@ -1,0 +1,6 @@
+# where to find python
+ansible_python_interpreter: /usr/local/bin/python2.7
+
+# template header
+#myansible: "# {{ ansible_managed |regex_replace('/.*/borgbackup/','~/borgbackup/') }}"
+myansible: "# {{ ansible_managed }}"

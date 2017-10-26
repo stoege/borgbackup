@@ -1,0 +1,40 @@
+---
+- name: borgbackup installed ?
+  openbsd_pkg:
+    name=borgbackup
+    state=installed
+
+- name: create backup directory
+  file:
+    path: /backup
+    state: directory
+    mode: 0755
+  ignore_errors: yes
+
+- name: deploy ssh keys
+  copy:
+    content="{{ item.key }}"
+    dest="/root/.ssh/{{ item.name }}"
+    owner=root
+    group=wheel
+    mode="{{ item.mode }}"
+  with_items:
+    - { name: id_ed25519_rsync_net,	key: '{{ vault_borg_private_key }}',	mode: '0600' }
+    - { name: id_ed25519_rsync_net.pub,	key: '{{ vault_borg_public_key }}',	mode: '0644' }
+  no_log: true
+
+- name: deploy backup script
+  template:
+    src=borg_rsync.net.sh.j2
+    dest=/backup/borg_rsync.net.sh
+    owner=root
+    group=wheel
+    mode=0700
+
+- name: create cronjob for borg
+  cron:
+    name="Backup Twice per Day"
+    job="sleep $((RANDOM \% 7200)) && /backup/borg_rsync.net.sh >> /tmp/borg.rsync.cron.out 2>&1"
+    minute="0"
+    hour="*/12"
+    user=root
