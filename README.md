@@ -1,9 +1,7 @@
 # borgbackup
 Ansible role for borgbackup
 
-#
 # Set Vault Password for Protecting Data
-#
 echo "my_valut_secret_key" > .vault_pass
 
 
